@@ -1,0 +1,25 @@
+{
+    "name": "some-kind-of-bot",
+    "version": "0.0.1",
+    "description": "Non-serious take on bot for my own needs.",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc"
+    },
+    "author": "SLCH",
+    "license": "MIT",
+    "repository": "https://github.com/SLCH/some-kind-of-bot",
+    "dependencies": {
+        "dank-twitch-irc": "^3.0.5",
+        "dotenv": "^8.2.0"
+    },
+    "devDependencies": {
+        "@types/mocha": "^5.2.7",
+        "mocha": "^7.0.1",
+        "typescript": "3.5.3"
+    },
+    "engines": {
+        "node": ">=10"
+    }
+}

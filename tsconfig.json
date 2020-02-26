@@ -12,15 +12,15 @@
       "noImplicitAny": true,
       "strictPropertyInitialization": true,
       "experimentalDecorators": true,
-      "module": "commonjs",
+      "module": "es6",
       "alwaysStrict": true,
       //    "noUnusedLocals": true,
       "strictNullChecks": true,
       "noImplicitReturns": true,
       "forceConsistentCasingInFileNames": true,
       "typeRoots": ["./node_modules/@types"],
-      "types": ["node", "mocha"]
+      "types": ["node"]
     },
-    "include": ["lib/**/*.ts"],
+    "include": ["src/**/*.ts"],
     // "exclude": ["node_modules"]
 }

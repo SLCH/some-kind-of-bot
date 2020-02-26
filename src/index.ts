@@ -1,13 +1,18 @@
+import 'source-map-support/register';
+require('dotenv').config();
+// import 'universal-dotenv/register';
 import { ChatClient } from 'dank-twitch-irc';
 import { execSync } from 'child_process';
 
 const started = new Date();
+const buildTime = new Date(process.env.__BUILD_TIME__!);
 
 const devs = [
     'slch000'
 ]
 
 const devChannels = [
+    ...devs,
     'pajlada',
     'supinic',
     'slchbot'
@@ -21,27 +26,18 @@ const listeningToChannels = [
     'elajjaz',
 ];
 
-(async function main() {
-
-    let client = new ChatClient({
-        username: '',
-        password: '',
-    });
-
-    client.on("ready", () => console.log("Successfully connected to chat"));
-    client.on("close", error => {
-    if (error != null) {
-        console.error("Client closed due to error", error);
-    }
-    });
-
-    startDefaultEventHandlers(client);
-
-    client.connect();
-})()
+function prepareResponse(r: string): string {
+    // const regex = new RegExp(':cntrl:')
+    const regex = new RegExp('[^\n\r\t]+');
+    const cleared = regex.exec(r)!.join('');
+    const cut = cleared.slice(0,200);
+    return cut;
+}
 
 function onConnect(c: ChatClient) {
-    c.say('slchbot', 'MrDestructoid Connected ❗');
+    devs.map(channel => {
+        c.say(channel, 'MrDestructoid Connected ❗');
+    });
 }
 
 function onReconnect(c: ChatClient) {
@@ -95,8 +91,9 @@ function handleBasicCommands(c: ChatClient) {
 
                 }
                 const data = {
+                    "Built at": buildTime.toUTCString(),
                     "Bot running for": `${botRunningTime} seconds`,
-                    " ": temps
+                    "Temperature": temps
                 };
                 response = Object.entries(data).map(([name, value]) => name + ": " + value).join("; ")
                 break;
@@ -106,11 +103,15 @@ function handleBasicCommands(c: ChatClient) {
                 }
                 response = execSync(commandText).toString();
                 break;
+            case('restart'):
+                c.say(responseChannel, 'forsenC forsenGun MrDestructoid');
+                execSync('pm2 reload bot');
+                break;
             default:
                 break;
         }
         if (response) {
-            c.say(responseChannel, response);
+            c.say(responseChannel, prepareResponse(response));
         }
     });
 }
@@ -121,3 +122,30 @@ function startDefaultEventHandlers(c: ChatClient) {
     listenToChannels(c);
     handleBasicCommands(c);
 }
+
+function startTwitchBot() {
+    if (!process.env.TWITCH_BOT_USERNAME
+        || !process.env.TWITCH_BOT_OAUTH) {
+            throw new Error('envs undefined');
+    }
+    let client = new ChatClient({
+        // TODO Make a config dict
+        username: process.env.TWITCH_BOT_USERNAME,
+        password: process.env.TWITCH_BOT_OAUTH,
+    });
+
+    client.on("ready", () => console.log("Successfully connected to chat"));
+    client.on("close", error => {
+    if (error != null) {
+        console.error("Client closed due to error", error);
+    }
+    });
+
+    startDefaultEventHandlers(client);
+
+    client.connect();
+}
+
+(async function main() {
+    startTwitchBot();
+})()
